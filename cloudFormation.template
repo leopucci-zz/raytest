@@ -218,10 +218,28 @@
       }
     },
 	 "ChefServer" : {
-	  "Metadata" : {"Comment" : "Chef group, to create 1 instance of the PUPETTEEEEER SW :)"},
-      "Type" : "AWS::EC2::Instance",
+	  "Metadata" : {"Comment" : "Chef group, to create 1 instance of the PUPETTEEEEER SW :). Need to create a AutoScalingGroup to be able to add tasks. Could be an ECS, but i let´s stick on Elastic for now. :)"},
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "LaunchConfigurationName" : { "Ref" : "LaunchConfigForChefChefChef" }
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "LaunchConfigurationName" : { "Ref" : "LaunchConfigForChefChefChef" },
+        "MinSize" : "1",
+        "MaxSize" : "1",
+        "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
+        "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
+      },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT15M"
+        }
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime" : "PT15M",
+          "WaitOnResourceSignals": "true"
+        }
       }
     },
 
