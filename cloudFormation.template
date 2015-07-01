@@ -88,6 +88,14 @@
       "MaxValue": "5",
       "ConstraintDescription" : "must be between 1 and 5 EC2 instances."
     },
+	   "ChefServerCapacity": {
+      "Default": "1",
+      "Description" : "The initial nuber of web server instances",
+      "Type": "Number",
+      "MinValue": "1",
+      "MaxValue": "5",
+      "ConstraintDescription" : "must be between 1 and 5 EC2 instances."
+    },
 
     "DBAllocatedStorage" : {
       "Default": "5",
@@ -220,7 +228,7 @@
         "LaunchConfigurationName" : { "Ref" : "LaunchConfigForChefChefChef" },
         "MinSize" : "1",
         "MaxSize" : "2",
-        "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
+        "DesiredCapacity" : { "Ref" : "ChefServerCapacity" },
         "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
       },
       "UpdatePolicy": {
@@ -540,7 +548,7 @@
       "Properties" : {
         "GroupDescription" : "Enable HTTP access via port 80 locked down to the load balancer + SSH access",
         "SecurityGroupIngress" : [
-          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"},
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535",
 "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},"SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}},
          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"}}
         ]
@@ -551,7 +559,7 @@
       "Properties" : {
         "GroupDescription" : "Open all up for debuging/creation/development. Then fine tune and close in production",
         "SecurityGroupIngress" : [
-          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"},
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535",
 "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},"SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}},
           {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"}}
         ]
