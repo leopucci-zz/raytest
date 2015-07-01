@@ -2,6 +2,7 @@
 setting up a cloudfront script to orchestrate the creation of chef server, postgres elastic db, rails servers, and tie up everything together. 
 
 Tasks:
+
 1 - Set 1 server with CHEF Server
 
 2 - Set the other 2 servers with Rails + Nginx

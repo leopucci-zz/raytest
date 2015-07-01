@@ -1,0 +1,88 @@
+"files" : {
+              "/tmp/database.yml" : {
+               "content" : { "Fn::Join" : ["", [
+                  "development:\n",
+                  "  adapter: mysql2\n",
+                  "  encoding: utf8\n",
+                  "  reconnect: false\n",
+                  "  pool: 5\n",
+                  "  database: ", { "Ref" : "DBName" }, "\n",
+                  "  username: ", { "Ref" : "DBUser" }, "\n",
+                  "  password: ", { "Ref" : "DBPassword" }, "\n",
+                  "  host: ", { "Fn::GetAtt": [ "MySQLDatabase", "Endpoint.Address" ] }, "\n",
+                  "  port: ", { "Fn::GetAtt": [ "MySQLDatabase", "Endpoint.Port" ] }, "\n"
+                ]]},
+                "mode"  : "000400",
+                "owner" : "root",
+                "group" : "root"
+              },
+              "/tmp/conditional_migration.rb" : {
+                "content" : { "Fn::Join" : ["", [
+                  "class CreateNotes < ActiveRecord::Migration\n",
+                  "  def change\n",
+                  "    if ! table_exists?(:notes)\n",
+                  "      create_table :notes do |t|\n",
+                  "        t.string :title\n",
+                  "        t.text :body\n",
+                  "        t.timestamps\n",
+                  "      end\n",
+                  "    end\n",
+                  "  end\n",
+                  "end\n"
+                ]]},
+                "mode"  : "000500",
+                "owner" : "root",
+                "group" : "root"
+              },
+              "/tmp/install_application" : {
+                "content" : { "Fn::Join" : ["", [
+                  "#!/bin/bash -e\n",
+                  "export HOME=/home/ec2-user\n",
+                  "export PATH=$PATH:/usr/local/bin\n",
+                  "cd /home/ec2-user\n",
+
+                  "# Kill the rails server if it is running to allow update\n",
+                  "if pgrep ruby &> /dev/null ; then pkill -TERM ruby ; fi\n",
+
+                  "# This sample template creates a new application inline\n",
+                  "# Typically you would use files and/or sources to download\n",
+                  "# your application package and perform any configuration here.\n",
+
+                  "# Create a new application, with therubyracer javascript library\n",
+                  "rails new sample -d mysql --skip-spring --skip-bundle --force\n",
+                  "cd /home/ec2-user/sample\n",
+                  "sed -i 's/^# \\(.*therubyracer.*$\\)/\\1/' Gemfile\n",
+                  "bundle install\n",
+
+                  "# Create a sample scoffold\n",
+                  "rails generate scaffold Note title:string body:text --force\n",
+
+                  "# Configure the database connection\n",
+                  "mv /tmp/database.yml config\n",
+
+                  "# Since there are multiple instances running, conditionalize the migration\n",
+                  "# so that only 1 host creates the tables. In the real world, you may check to\n",
+                  "# see if the table matches the schema and do a migrate so that updates work\n",
+                  "file=$(find db/migrate/*create_notes* -type f -printf '%f')\n",
+                  "mv /tmp/conditional_migration.rb db/migrate/$file\n",
+                  "rake db:migrate\n"
+                ]]},
+                "mode"  : "000500",
+                "owner" : "root",
+                "group" : "root"
+              },
+              "/home/ec2-user/start-application" : {
+                "content" : { "Fn::Join" : ["", [
+                  "#!/bin/bash -e\n",
+                  "export HOME=/home/ec2-user\n",
+                  "export PATH=$PATH:/usr/local/bin\n",
+                  "cd /home/ec2-user/sample\n",
+
+                  "# Startup the application\n",
+                  "rails server --binding 0.0.0.0 -p 80 -d\n"
+                ]]},
+                "mode"  : "000500",
+                "owner" : "root",
+                "group" : "root"
+              }
+            },
