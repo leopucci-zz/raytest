@@ -16,11 +16,17 @@ Tasks:
 Later tasks:
 
 Create ruby app package
+
 Theme up the MVC
+
 Deploy first crap html.erb
+
 Convert crap to pretty ruby post background with XHR ajax requests. 
+
 Think/LMGTFY on MQTT or Websocket with ruby. 
+
 Develop interface or generate with Jtables or other jscript related stuff
+
 Reconfigure the Chef recipe to deploy ruby new app details. 
 
 Let´s Roll!
