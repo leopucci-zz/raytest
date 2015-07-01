@@ -219,7 +219,7 @@
     },
 	 "ChefServer" : {
 	  "Metadata" : {"Comment" : "Chef group, to create 1 instance of the PUPETTEEEEER SW :)"},
-      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Type" : "AWS::EC2::Instance",
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : "" },
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
