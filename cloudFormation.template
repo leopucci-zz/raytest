@@ -193,7 +193,7 @@
        }
     },
     "WebServerGroup" : {
-	"Metadata" : {"Comment" : "TESTING"},
+	  "Metadata" : {"Comment" : "This will be the Rails servers, so only CHEF client on them. I will have to create another group for Chef Server and create diferent LaunchConfigurationName and diferent configurations"},
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : "" },
