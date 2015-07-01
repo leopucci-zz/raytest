@@ -115,59 +115,48 @@
       "ConstraintDescription" : "must be between 5 and 1024 GB."
     },
 	
-	  "Default": "toor",
-      "NoEcho": "false",
-      "Description" : "The Rails database admin account user name",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "16",
-      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
-      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
-	
-	"CHEF_ADMIN_USERNAME" : {
+	"ChefAdminUsername" : {
       "Default": "leopucci",
       "Description" : "CHEF - Admin Username for CHEF server",
       "Type": "String",
       "MinLength": "1",
       "MaxLength": "16",
-      "AllowedPattern" : "[a-zA-Z0-9]",
-	  "ConstraintDescription" : "Must be alphanumeric characters."
+	  "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
     },
-	"CHEF_ADMIN_FIRST_NAME" : {
+	"ChefAdminFirstName" : {
       "Default": "Leonardo",
       "Description" : "CHEF - Admin First Name",
       "Type": "String",
       "MinLength": "1",
       "MaxLength": "16",
-      "AllowedPattern" : "[a-zA-Z0-9]",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
 	  "ConstraintDescription" : "Must be alphanumeric characters."
     },
-	"CHEF_ADMIN_LAST_NAME" : {
+	"ChefAdminLastName" : {
       "Default": "Pucci",
       "Description" : "CHEF - Admin Last Name",
       "Type": "String",
       "MinLength": "1",
       "MaxLength": "16",
-      "AllowedPattern" : "[a-zA-Z0-9]",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
 	  "ConstraintDescription" : "Must be alphanumeric characters."
     },
-	"CHEF_ADMIN_EMAIL" : {
+	"ChefAdminEmail" : {
       "Default": "leopucci@gmail.com",
       "Description" : "CHEF - Admin Email",
       "Type": "String",
       "MinLength": "1",
-      "MaxLength": "20",
-      "AllowedPattern" : "[a-zA-Z0-9]",
-	  "ConstraintDescription" : "Must be alphanumeric characters."
+      "MaxLength": "20"
     },
-	"CHEF_ADMIN_PASSWORD" : {
+	"ChefAdminPassword" : {
       "Default": "PASSWORDTEST",
       "NoEcho": "false",
       "Description" : "CHEF - Admin Password",
       "Type": "String",
       "MinLength": "1",
       "MaxLength": "20",
-      "AllowedPattern" : "[a-zA-Z0-9]",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
 	  "ConstraintDescription" : "Must be alphanumeric characters."
     }
   },
@@ -364,7 +353,7 @@
                 "command" : "chef-server-ctl test"
               },
               "03_create_chef_admin_user" : {
-                "command" : "chef-server-ctl user-create { "Ref" : "CHEF_ADMIN_USERNAME" } { "Ref" : "CHEF_ADMIN_FIRST_NAME" } { "Ref" : "CHEF_ADMIN_LAST_NAME" } { "Ref" : "CHEF_ADMIN_EMAIL" } { "Ref" : "CHEF_ADMIN_PASSWORD" }"
+                "command" : ["chef-server-ctl user-create ", { "Ref" : "ChefAdminUsername" } ," ",{ "Ref" : "ChefAdminFirstName" }," ",{ "Ref" : "ChefAdminLastName" }," ",{ "Ref" : "ChefAdminEmail" }," ",{ "Ref" : "ChefAdminPassword" }]
               }
             }
           }
