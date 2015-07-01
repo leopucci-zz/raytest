@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Leonardo Pucci - AWS CloudFormation template. The porpuse of this template is to create 1 loda balancer, 2 servers and a Postgres Instance. Then to install chef, deploy rails on the servers and make the orchestration happen!",
+  "Description" : "Leonardo Pucci - AWS CloudFormation template. The purpose of this template is to create 1 load balancer, 2 servers and a Postgres Instance. Then to install chef, deploy rails on the servers and make the orchestration happen!",
 
   "Parameters" : {
 
@@ -74,7 +74,7 @@
 
     "MultiAZDatabase": {
       "Default": "false",
-      "Description" : "Create a multi-AZ POSTGREEEEEEE Amazon RDS database instance",
+      "Description" : "Create a multi-AZ POSTGREEEEEEE Amazon RDS database instance - This is just a true or false for AzDatabase or not. ",
       "Type": "String",
       "AllowedValues" : [ "true", "false" ],
       "ConstraintDescription" : "must be either true or false."
@@ -221,7 +221,6 @@
 	  "Metadata" : {"Comment" : "Chef group, to create 1 instance of the PUPETTEEEEER SW :)"},
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
-        "AvailabilityZones" : { "Fn::GetAZs" : "" },
         "LaunchConfigurationName" : { "Ref" : "LaunchConfigForChefChefChef" }
       }
     },
