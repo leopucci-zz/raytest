@@ -113,6 +113,62 @@
       "MinValue": "5",
       "MaxValue": "1024",
       "ConstraintDescription" : "must be between 5 and 1024 GB."
+    },
+	
+	  "Default": "toor",
+      "NoEcho": "false",
+      "Description" : "The Rails database admin account user name",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+	
+	"CHEF_ADMIN_USERNAME" : {
+      "Default": "leopucci",
+      "Description" : "CHEF - Admin Username for CHEF server",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z0-9]",
+	  "ConstraintDescription" : "Must be alphanumeric characters."
+    },
+	"CHEF_ADMIN_FIRST_NAME" : {
+      "Default": "Leonardo",
+      "Description" : "CHEF - Admin First Name",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z0-9]",
+	  "ConstraintDescription" : "Must be alphanumeric characters."
+    },
+	"CHEF_ADMIN_LAST_NAME" : {
+      "Default": "Pucci",
+      "Description" : "CHEF - Admin Last Name",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z0-9]",
+	  "ConstraintDescription" : "Must be alphanumeric characters."
+    },
+	"CHEF_ADMIN_EMAIL" : {
+      "Default": "leopucci@gmail.com",
+      "Description" : "CHEF - Admin Email",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "20",
+      "AllowedPattern" : "[a-zA-Z0-9]",
+	  "ConstraintDescription" : "Must be alphanumeric characters."
+    },
+	"CHEF_ADMIN_PASSWORD" : {
+      "Default": "PASSWORDTEST",
+      "NoEcho": "false",
+      "Description" : "CHEF - Admin Password",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "20",
+      "AllowedPattern" : "[a-zA-Z0-9]",
+	  "ConstraintDescription" : "Must be alphanumeric characters."
     }
   },
 
@@ -256,7 +312,7 @@
 		"Comment" : "Need to determine what is needed for chef instance and create apropriated ConfigSet",
         "AWS::CloudFormation::Init" : {
           "configSets" : {
-            "Chef_CloudCroud_install" : ["install_cfn", "install_chefdk", "install_chef", "run_chef"]
+            "Chef_CloudCroud_install" : ["install_cfn", "install_chef_SERVER"]
           },
           "install_cfn" : {
             "files": {
@@ -294,65 +350,21 @@
             }
           },
 
-          "install_chef" : {
-            "sources" : {
-              "/var/chef/chef-repo" : "http://github.com/opscode/chef-repo/tarball/master"
-            },
-            "files" : {
-              "/tmp/install.sh" : {
-                "source" : "https://www.opscode.com/chef/install.sh",
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              },
-              "/var/chef/chef-repo/.chef/knife.rb" : {
-                "content" : { "Fn::Join": [ "", [
-                  "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
-                  "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-                ]]},
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              },
-              "/var/chef/chef-repo/.chef/client.rb" : {
-                "content" : { "Fn::Join": [ "", [
-                  "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
-                  "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-                ]]},
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              }
-            },
-            "commands" : {
-              "01_make_chef_readable" : {
-                "command" : "chmod +rx /var/chef"
-              },
-              "02_install_chef" : {
-                "command" : "bash /tmp/install.sh",
-                "cwd"  : "/var/chef"
-              },
-              "03_create_node_list" : {
-                "command" : "chef-client -z -c /var/chef/chef-repo/.chef/client.rb",
-                "cwd" : "/var/chef/chef-repo",
-                "env" : { "HOME" : "/var/chef" }
-              }
-            }
-          },
-
-          "install_chefdk" : {
+          "install_chef_SERVER" : {
             "packages" : {
               "rpm" : {
-                "chefdk" : "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chefdk-0.2.0-2.el6.x86_64.rpm"
+                "chef-server-core" : "https://web-dl.packagecloud.io/chef/stable/packages/el/7/chef-server-core-12.1.0-1.el7.x86_64.rpm"
               }
-            }
-          },
-          "run_chef" : {
-            "commands" : {
-              "01_run_chef_client" : {
-                "command" : "chef-client -z -c /var/chef/chef-repo/.chef/client.rb",
-                "cwd" : "/var/chef/chef-repo",
-                "env" : { "HOME" : "/var/chef" }
+            },
+			"commands" : {
+              "01_reconfigure_chef" : {
+                "command" : "chef-server-ctl reconfigure"
+              },
+              "02_test" : {
+                "command" : "chef-server-ctl test"
+              },
+              "03_create_chef_admin_user" : {
+                "command" : "chef-server-ctl user-create { "Ref" : "CHEF_ADMIN_USERNAME" } { "Ref" : "CHEF_ADMIN_FIRST_NAME" } { "Ref" : "CHEF_ADMIN_LAST_NAME" } { "Ref" : "CHEF_ADMIN_EMAIL" } { "Ref" : "CHEF_ADMIN_PASSWORD" }"
               }
             }
           }
