@@ -540,9 +540,9 @@
       "Properties" : {
         "GroupDescription" : "Enable HTTP access via port 80 locked down to the load balancer + SSH access",
         "SecurityGroupIngress" : [
-          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535",
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"},
 "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},"SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}},
-         {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535"}
+         {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"}}
         ]
       }
     },
@@ -551,9 +551,9 @@
       "Properties" : {
         "GroupDescription" : "Open all up for debuging/creation/development. Then fine tune and close in production",
         "SecurityGroupIngress" : [
-          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535",
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"},
 "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},"SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}},
-          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535"}
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535","CidrIp" : { "Ref" : "SSHLocation"}}
         ]
       }
     }
