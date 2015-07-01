@@ -192,8 +192,8 @@
         } ]
        }
     },
-	//As a JSON, does it accept comments? TESTING
     "WebServerGroup" : {
+	"Metadata" : {"Comment" : "TESTING"},
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : "" },
