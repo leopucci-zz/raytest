@@ -211,20 +211,20 @@
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
           "MinInstancesInService": "1",
-          "MaxBatchSize": "1",
+          "MaxBatchSize": "2",
           "PauseTime" : "PT15M",
           "WaitOnResourceSignals": "true"
         }
       }
     },
 	 "ChefServer" : {
-	  "Metadata" : {"Comment" : "Chef group, to create 1 instance of the PUPETTEEEEER SW :). Need to create a AutoScalingGroup to be able to add tasks. Could be an ECS, but i let´s stick on Elastic for now. :)"},
+	  "Metadata" : {"Comment" : "Chef group, to create 1 instance of the PUPETTEEEEER SW :). Need to create a AutoScalingGroup to be able to add tasks. Could be an ECS, but lets stick on Elastic for now. :)"},
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : "" },
         "LaunchConfigurationName" : { "Ref" : "LaunchConfigForChefChefChef" },
         "MinSize" : "1",
-        "MaxSize" : "1",
+        "MaxSize" : "2",
         "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
         "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
       },
@@ -379,7 +379,7 @@
       "Metadata" : {
         "AWS::CloudFormation::Init" : {
           "configSets" : {
-            "CloudCroud_install" : ["install_cfn", "install_chefdk", "install_chef", "install_wordpress", "run_chef"]
+            "CloudCroud_install" : ["install_cfn", "install_chefdk", "install_chef", "run_chef"]
           },
           "install_cfn" : {
             "files": {
@@ -470,67 +470,6 @@
               }
             }
           },
-
-          "install_wordpress" : {
-            "files" : {
-              "/var/chef/chef-repo/.chef/knife.rb" : {
-                "content" : { "Fn::Join": [ "", [
-                  "cookbook_path [ '/var/chef/chef-repo/cookbooks/wordpress/berks-cookbooks' ]\n",
-                  "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-                ]]},
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              },
-              "/var/chef/chef-repo/.chef/client.rb" : {
-                "content" : { "Fn::Join": [ "", [
-                  "cookbook_path [ '/var/chef/chef-repo/cookbooks/wordpress/berks-cookbooks' ]\n",
-                  "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-                ]]},
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              },
-              "/var/chef/chef-repo/cookbooks/wordpress/attributes/aws_rds_config.rb" : {
-                "content": { "Fn::Join": [ "", [
-                  "normal['wordpress']['db']['pass'] = '", {"Ref" : "DBPassword"}, "'\n",
-                  "normal['wordpress']['db']['user'] = '", {"Ref" : "DBUser"}, "'\n",
-                  "normal['wordpress']['db']['host'] = '", {"Fn::GetAtt" : ["DBInstance", "Endpoint.Address"]}, "'\n",
-                  "normal['wordpress']['db']['name'] = '", {"Ref" : "DBName"}, "'\n"
-                ]]},          
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              }
-            },
-            "commands" : {
-              "01_get_cookbook" : {
-                "command" : "knife cookbook site download wordpress",
-                "cwd" : "/var/chef/chef-repo",
-                "env" : { "HOME" : "/var/chef" }
-              },
-              "02_unpack_cookbook" : {
-                "command" : "tar xvfz /var/chef/chef-repo/wordpress*",
-                "cwd" : "/var/chef/chef-repo/cookbooks"
-              },
-              "03_init_berkshelf": {
-                "command" : "berks init /var/chef/chef-repo/cookbooks/wordpress --skip-vagrant --skip-git",
-                "cwd" : "/var/chef/chef-repo/cookbooks/wordpress",
-                "env" : { "HOME" : "/var/chef" }
-              },
-              "04_vendorize_berkshelf" : {
-                "command" : "berks vendor",
-                "cwd" : "/var/chef/chef-repo/cookbooks/wordpress",
-                "env" : { "HOME" : "/var/chef" }
-              },
-              "05_configure_node_run_list" : {
-                "command" : "knife node run_list add -z `knife node list -z` recipe[wordpress]",
-                "cwd" : "/var/chef/chef-repo",
-                "env" : { "HOME" : "/var/chef" }
-              }
-            }
-          },
-
           "run_chef" : {
             "commands" : {
               "01_run_chef_client" : {
@@ -546,7 +485,7 @@
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
         "InstanceType"   : { "Ref" : "InstanceType" },
-        "SecurityGroups" : [ {"Ref" : "WebServerSecurityGroup"} ],
+        "SecurityGroups" : [ {"Ref" : "CHEFSecurityGroup"} ],
         "KeyName"        : { "Ref" : "KeyName" },
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
                        "#!/bin/bash -xe\n",
@@ -614,6 +553,17 @@
           {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80",
 "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},"SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}},
           {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}}
+        ]
+      }
+    },
+	 "CHEFSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Open all up for debuging/creation/development. Then fine tune and close in production",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535",
+"SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},"SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}},
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535", "CidrIp" : { "Ref" : "SSHLocation"}}
         ]
       }
     }
