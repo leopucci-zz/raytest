@@ -229,9 +229,10 @@
     "LaunchConfigForChefChefChef": {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Metadata" : {
+		"Comment" : "Need to determine what is needed for chef instance and create apropriated ConfigSet",
         "AWS::CloudFormation::Init" : {
           "configSets" : {
-            "CloudCroud_install" : ["install_cfn", "install_chefdk", "install_chef", "install_wordpress", "run_chef"]
+            "Chef_CloudCroud_install" : ["install_cfn", "install_chefdk", "install_chef", "run_chef"]
           },
           "install_cfn" : {
             "files": {
@@ -253,7 +254,7 @@
                   "action=/opt/aws/bin/cfn-init -v ",
                           "         --stack ", { "Ref" : "AWS::StackName" },
                           "         --resource LaunchConfig ",
-                          "         --configsets CloudCroud_install ",
+                          "         --configsets Chef_CloudCroud_install ",
                           "         --region ", { "Ref" : "AWS::Region" }, "\n"
                 ]]},          
                 "mode"  : "000400",
@@ -322,67 +323,6 @@
               }
             }
           },
-
-          "install_wordpress" : {
-            "files" : {
-              "/var/chef/chef-repo/.chef/knife.rb" : {
-                "content" : { "Fn::Join": [ "", [
-                  "cookbook_path [ '/var/chef/chef-repo/cookbooks/wordpress/berks-cookbooks' ]\n",
-                  "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-                ]]},
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              },
-              "/var/chef/chef-repo/.chef/client.rb" : {
-                "content" : { "Fn::Join": [ "", [
-                  "cookbook_path [ '/var/chef/chef-repo/cookbooks/wordpress/berks-cookbooks' ]\n",
-                  "node_path [ '/var/chef/chef-repo/nodes' ]\n"
-                ]]},
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              },
-              "/var/chef/chef-repo/cookbooks/wordpress/attributes/aws_rds_config.rb" : {
-                "content": { "Fn::Join": [ "", [
-                  "normal['wordpress']['db']['pass'] = '", {"Ref" : "DBPassword"}, "'\n",
-                  "normal['wordpress']['db']['user'] = '", {"Ref" : "DBUser"}, "'\n",
-                  "normal['wordpress']['db']['host'] = '", {"Fn::GetAtt" : ["DBInstance", "Endpoint.Address"]}, "'\n",
-                  "normal['wordpress']['db']['name'] = '", {"Ref" : "DBName"}, "'\n"
-                ]]},          
-                "mode"  : "000400",
-                "owner" : "root",
-                "group" : "root"
-              }
-            },
-            "commands" : {
-              "01_get_cookbook" : {
-                "command" : "knife cookbook site download wordpress",
-                "cwd" : "/var/chef/chef-repo",
-                "env" : { "HOME" : "/var/chef" }
-              },
-              "02_unpack_cookbook" : {
-                "command" : "tar xvfz /var/chef/chef-repo/wordpress*",
-                "cwd" : "/var/chef/chef-repo/cookbooks"
-              },
-              "03_init_berkshelf": {
-                "command" : "berks init /var/chef/chef-repo/cookbooks/wordpress --skip-vagrant --skip-git",
-                "cwd" : "/var/chef/chef-repo/cookbooks/wordpress",
-                "env" : { "HOME" : "/var/chef" }
-              },
-              "04_vendorize_berkshelf" : {
-                "command" : "berks vendor",
-                "cwd" : "/var/chef/chef-repo/cookbooks/wordpress",
-                "env" : { "HOME" : "/var/chef" }
-              },
-              "05_configure_node_run_list" : {
-                "command" : "knife node run_list add -z `knife node list -z` recipe[wordpress]",
-                "cwd" : "/var/chef/chef-repo",
-                "env" : { "HOME" : "/var/chef" }
-              }
-            }
-          },
-
           "run_chef" : {
             "commands" : {
               "01_run_chef_client" : {
