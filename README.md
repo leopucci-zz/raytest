@@ -16,7 +16,8 @@ Tasks:
 Later tasks:
 
 Create ruby app package
-
+-- Use Js "data-" for unobstrusive JS, just like cakePhp conventions
+-- Create controller DB <-> SpreadSheetCells
 Theme up the MVC
 
 Deploy first crap html.erb
@@ -24,7 +25,7 @@ Deploy first crap html.erb
 Convert crap to pretty ruby post background with XHR ajax requests. 
 
 Think/LMGTFY on MQTT or Websocket with ruby. 
-
+https://github.com/faye/faye-websocket-ruby
 Develop interface or generate with Jtables or other jscript related stuff
 
 Reconfigure the Chef recipe to deploy ruby new app details. 
