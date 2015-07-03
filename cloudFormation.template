@@ -301,7 +301,7 @@
 		"Comment" : "Need to determine what is needed for chef instance and create apropriated ConfigSet",
         "AWS::CloudFormation::Init" : {
           "configSets" : {
-            "Chef_CloudCroud_install" : ["install_cfn", "install_chef_SERVER"]
+            "Chef_CloudCroud_install" : ["install_cfn", "install_chef_SERVER", "install_chef_configure"]
           },
           "install_cfn" : {
             "files": {
@@ -323,6 +323,7 @@
                   "action=/opt/aws/bin/cfn-init -v ",
                           "         --stack ", { "Ref" : "AWS::StackName" },
                           "         --resource LaunchConfig ",
+                          "         --resource LaunchConfigForChefChefChef ",
                           "         --configsets Chef_CloudCroud_install ",
                           "         --region ", { "Ref" : "AWS::Region" }, "\n"
                 ]]},          
@@ -356,6 +357,19 @@
                 "command" : ["chef-server-ctl user-create ", { "Ref" : "ChefAdminUsername" } ," ",{ "Ref" : "ChefAdminFirstName" }," ",{ "Ref" : "ChefAdminLastName" }," ",{ "Ref" : "ChefAdminEmail" }," ",{ "Ref" : "ChefAdminPassword" }]
               }
             }
+          },
+		  "install_chef_configure" : {
+            "commands" : {
+              "01_reconfigure_chef" : {
+                "command" : "sudo chef-server-ctl reconfigure"
+              },
+              "02_test" : {
+                "command" : "sudo chef-server-ctl test"
+              },
+              "03_create_chef_admin_user" : {
+                "command" : ["chef-server-ctl user-create ", { "Ref" : "ChefAdminUsername" } ," ",{ "Ref" : "ChefAdminFirstName" }," ",{ "Ref" : "ChefAdminLastName" }," ",{ "Ref" : "ChefAdminEmail" }," ",{ "Ref" : "ChefAdminPassword" }]
+              }
+            }
           }
         }
       },
@@ -371,13 +385,13 @@
 
                        "/opt/aws/bin/cfn-init -v ",
                        "         --stack ", { "Ref" : "AWS::StackName" },
-                       "         --resource LaunchConfig ",
-                       "         --configsets CloudCroud_install ",
+                       "         --resource LaunchConfigForChefChefChef ",
+                       "         --configsets Chef_CloudCroud_install ",
                        "         --region ", { "Ref" : "AWS::Region" }, "\n",
 
                        "/opt/aws/bin/cfn-signal -e $? ",
                        "         --stack ", { "Ref" : "AWS::StackName" },
-                       "         --resource WebServerGroup ",
+                       "         --resource LaunchConfigForChefChefChef ",
                        "         --region ", { "Ref" : "AWS::Region" }, "\n"
         ]]}}
       }
@@ -470,6 +484,7 @@
               }
             }
           },
+		  
 
           "install_chefdk" : {
             "packages" : {
