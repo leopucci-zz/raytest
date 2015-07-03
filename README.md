@@ -26,6 +26,7 @@ Convert crap to pretty ruby post background with XHR ajax requests.
 
 Think/LMGTFY on MQTT or Websocket with ruby. 
 https://github.com/faye/faye-websocket-ruby
+Maybe use memcached for this, as websockets can be firewalled. 
 Develop interface or generate with Jtables or other jscript related stuff
 
 Reconfigure the Chef recipe to deploy ruby new app details. 
