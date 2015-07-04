@@ -3,9 +3,9 @@ setting up a cloudfront script to orchestrate the creation of chef server, postg
 
 Tasks:
 
-1 - Set 1 server with CHEF Server - Almost ready, need to confirm the script execution. 
+1 - Set 1 server with CHEF Server - installation ok, the cfn-init must be some firewall/proxy that fails on the instalation test. But instalation is ok. 
 
-2 - Set the other 2 servers with Rails + Nginx - Need to deploy chef client first.
+2 - Set the other 2 servers with Rails + Nginx - Need to deploy chef client first. Chefdk being deployed. Need to add the clients to the server
 
 3 - Deploy all conf of the load balancer only for the two Rails Instances. Done
 
